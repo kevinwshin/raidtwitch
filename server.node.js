@@ -7,10 +7,14 @@ var io = require('socket.io')(server);
 
 var cacheTimeout = 24 * 60 * 60 * 1000;
 var channelDuration = 5 * 60 * 1000;
+var maxPages = 10;
 
-var pickChannel = function() {
+var currentChannel;
+
+var changeChannel = function() {
+    var numResponses = 0;
     var streams = [];
-    for(var page = 0; page < 10; page++) {
+    for(var page = 0; page < maxPages; page++) {
         var offset = 5000 + page * 100;
         https.get('https://api.twitch.tv/kraken/streams?limit=100&offset=' + offset, function(res) {
             var JSONResponse = '';
@@ -23,16 +27,17 @@ var pickChannel = function() {
                 data.streams.forEach(function(stream, index) {
                     streams.push(stream.channel.name);
                 });
+
+                if(++numResponses === maxPages) {
+                    currentChannel = streams[Math.floor(Math.random() * maxPages * 100)];
+                    console.log(currentChannel + ' @ ' + (new Date().toString()));
+                    io.emit('changeChannel', currentChannel);
+                }
             });
         });
     }
-    return streams[Math.floor(Math.random() * 1000)];
 };
-var currentChannel = pickChannel();
-var changeChannel = function() {
-    currentChannel = pickChannel();
-    io.emit('changeChannel', currentChannel);
-};
+changeChannel();
 
 io.on('connection', function(socket) {
     socket.emit('changeChannel', currentChannel);
