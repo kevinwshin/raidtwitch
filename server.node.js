@@ -10,7 +10,10 @@ var channelDuration = 5 * 60 * 1000;
 var maxPages = 10;
 
 var currentChannel;
+var numConnected = 0;
 
+//pulls maxPages of 100 streams each starting at the 5000th stream
+//it then picks one at random, prints it to stdout, and sends it to all clients
 var changeChannel = function() {
     var numResponses = 0;
     var streams = [];
@@ -28,6 +31,7 @@ var changeChannel = function() {
                     streams.push(stream.channel.name);
                 });
 
+                //execute on full completion of stream collection
                 if(++numResponses === maxPages) {
                     currentChannel = streams[Math.floor(Math.random() * maxPages * 100)];
                     console.log(currentChannel + ' @ ' + (new Date().toString()));
@@ -37,15 +41,18 @@ var changeChannel = function() {
         });
     }
 };
+//pick a channel now and start the timer for the next ones
 changeChannel();
+setInterval(changeChannel, channelDuration);
 
+//tell new connectees what channel we're on
 io.on('connection', function(socket) {
     socket.emit('changeChannel', currentChannel);
 });
-setInterval(changeChannel, channelDuration);
 
+//express stuff that I don't truly understand
 app.use(compression());
 app.use(express.static(__dirname + '/public', { maxAge: cacheTimeout }));
-server.listen(80, function() {
+server.listen(80, '192.168.0.9', function() {
     console.log('server start');
 });
