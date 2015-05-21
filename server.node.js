@@ -10,7 +10,7 @@ var channelDuration = 60 * 1000;
 var pickChannel = function() {
     return (currentChannel === 'finestko') ? 'sirhcez' : 'finestko';
 };
-var currentChannel = pickChannel;
+var currentChannel = pickChannel();
 var changeChannel = function() {
     currentChannel = pickChannel();
     io.emit('changeChannel', currentChannel);
