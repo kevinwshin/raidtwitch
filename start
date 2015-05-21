@@ -1,0 +1,2 @@
+#!/bin/sh
+sudo nodejs server.node.js | tee -a LOGFILE
