@@ -1,14 +1,32 @@
 var express = require('express');
 var app = express();
 var compression = require('compression');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var https = require('https');
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 var cacheTimeout = 24 * 60 * 60 * 1000;
-var channelDuration = 60 * 1000;
+var channelDuration = 5 * 60 * 1000;
 
 var pickChannel = function() {
-    return (currentChannel === 'finestko') ? 'sirhcez' : 'finestko';
+    var streams = [];
+    for(var page = 0; page < 10; page++) {
+        var offset = 5000 + page * 100;
+        https.get('https://api.twitch.tv/kraken/streams?limit=100&offset=' + offset, function(res) {
+            var JSONResponse = '';
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                JSONResponse += chunk;
+            });
+            res.on('end', function() {
+                var data = JSON.parse(JSONResponse);
+                data.streams.forEach(function(stream, index) {
+                    streams.push(stream.channel.name);
+                });
+            });
+        });
+    }
+    return streams[Math.floor(Math.random() * 1000)];
 };
 var currentChannel = pickChannel();
 var changeChannel = function() {
@@ -23,6 +41,6 @@ setInterval(changeChannel, channelDuration);
 
 app.use(compression());
 app.use(express.static(__dirname + '/public', { maxAge: cacheTimeout }));
-http.listen(80, function() {
+server.listen(80, function() {
     console.log('server start');
 });
