@@ -53,12 +53,14 @@ var keepTime = function() {
     var currentTotalTime = numConnected === 0 ? channelDuration : channelDuration * 3 /
             (3 - (upVotes + downVotes) * (upVotes - downVotes) / numConnected / numConnected * 2);
     var remainingTime = currentTotalTime - elapsedTime++;
-    io.emit('time', remainingTime);
 
     if(remainingTime <= 0) {
-        elapsedTime = 0;
         changeChannel();
+        elapsedTime = 0;
+        remainingTime = channelDuration;
     }
+
+    io.emit('time', remainingTime);
 };
 setInterval(keepTime, 1000);
 
@@ -70,18 +72,6 @@ io.on('connection', function(socket) {
 
     //keep track of voting
     var vote = 0;
-    socket.on('voteup', function() {
-        if(vote === 0) {
-            vote = 1;
-            ++upVotes;
-        }
-    });
-    socket.on('votedown', function() {
-        if(vote === 0) {
-            vote = -1;
-            ++downVotes;
-        }
-    });
     var unvote = function() {
         if(vote === 1) {
             --upVotes;
@@ -91,6 +81,16 @@ io.on('connection', function(socket) {
         vote = 0;
     };
     socket.on('unvote', unvote);
+    socket.on('upVote', function() {
+        unvote();
+        vote = 1;
+        ++upVotes;
+    });
+    socket.on('downVote', function() {
+        unvote();
+        vote = -1;
+        ++downVotes;
+    });
     socket.on('disconnect', function() {
         unvote();
         --numConnected;
