@@ -51,7 +51,7 @@ var changeChannel = function() {
 var keepTime = function() {
     //go around the divide by zero
     var currentTotalTime = numConnected === 0 ? channelDuration : channelDuration * 3 /
-            (3 - (upVotes + downVotes) * (upVotes - downVotes) / numConnected / numConnected * 2);
+            (3 - (upVotes * 2 + downVotes * 3) * (upVotes - downVotes) / numConnected / numConnected);
     var remainingTime = currentTotalTime - elapsedTime++;
 
     if(remainingTime <= 0) {
