@@ -27,6 +27,7 @@ socket.on('changeChannel', function(name) {
     socket.emit('unvote');
     $('#stream').attr('src', 'http://www.twitch.tv/' + name + '/embed');
     $('#chat').attr('src', 'http://www.twitch.tv/' + name + '/chat?popout=');
+    $('#name').text(name);
 });
 
 socket.on('time', function(time) {

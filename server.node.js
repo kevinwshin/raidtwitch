@@ -45,7 +45,7 @@ var changeChannel = function() {
     }
 };
 //pick a channel now
-changeChannel();
+//changeChannel();
 
 //make and start the timekeeper for the channel changer
 var keepTime = function() {
@@ -62,13 +62,13 @@ var keepTime = function() {
 
     io.emit('time', remainingTime);
 };
-setInterval(keepTime, 1000);
+//setInterval(keepTime, 1000);
 
 //tell new connectees what channel we're on
 //also tally them
 io.on('connection', function(socket) {
     ++numConnected;
-    socket.emit('changeChannel', currentChannel);
+//    socket.emit('changeChannel', currentChannel);
 
     //keep track of voting
     var vote = 0;
