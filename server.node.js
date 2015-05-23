@@ -45,7 +45,7 @@ var changeChannel = function() {
                     var index = Math.floor(Math.random() * maxPages * 100);
                     currentChannel = streams[index];
                     io.emit('changeChannel', currentChannel);
-                    log('change #' + index + ': ' + currentChannel);
+                    log('change #' + (index + channelOffset) + ': ' + currentChannel);
 
                     //set the next channel offset
                     channelOffset = Math.floor(data._total * 0.8);
