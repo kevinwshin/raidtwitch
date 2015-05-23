@@ -14,19 +14,20 @@ var cacheTimeout = 24 * 60 * 60 * 1000; //ms
 var channelDuration = 4 * 60; //sec
 var maxPages = 10;
 
+var channelOffset = 5000;
 var currentChannel;
 var elapsedTime = 0;
 var numConnected = 0;
 var upVotes = 0;
 var downVotes = 0;
 
-//pulls maxPages of 100 streams each starting at the 5000th stream
+//pulls maxPages of 100 streams each starting at the channelOffset'th stream
 //it then picks one at random, prints it to stdout, and sends it to all clients
 var changeChannel = function() {
     var numResponses = 0;
     var streams = [];
     for(var page = 0; page < maxPages; ++page) {
-        var offset = 5000 + page * 100;
+        var offset = channelOffset + page * 100;
         https.get('https://api.twitch.tv/kraken/streams?limit=100&offset=' + offset, function(res) {
             var JSONResponse = '';
             res.setEncoding('utf8');
@@ -41,9 +42,13 @@ var changeChannel = function() {
 
                 //execute on full completion of stream collection
                 if(++numResponses === maxPages) {
-                    currentChannel = streams[Math.floor(Math.random() * maxPages * 100)];
-                    log('change ' + currentChannel);
+                    var index = Math.floor(Math.random() * maxPages * 100);
+                    currentChannel = streams[index];
                     io.emit('changeChannel', currentChannel);
+                    log('change #' + index + ': ' + currentChannel);
+
+                    //set the next channel offset
+                    channelOffset = Math.floor(data._total * 0.8);
                 }
             });
         });
