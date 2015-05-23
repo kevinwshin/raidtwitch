@@ -12,22 +12,24 @@ var log = function(event) {
 
 var cacheTimeout = 24 * 60 * 60 * 1000; //ms
 var channelDuration = 4 * 60; //sec
-var maxPages = 10;
+var maxPages = 7;
 
 var channelOffset = 5000;
 var currentChannel;
+var channelList;
 var elapsedTime = 0;
 var numConnected = 0;
 var upVotes = 0;
 var downVotes = 0;
 
 //pulls maxPages of 100 streams each starting at the channelOffset'th stream
-//it then picks one at random, prints it to stdout, and sends it to all clients
-var changeChannel = function() {
+//sets the next channel to one of them at random
+var getChannelList = function() {
     var numResponses = 0;
-    var streams = [];
+    var channels = [];
     for(var page = 0; page < maxPages; ++page) {
         var offset = channelOffset + page * 100;
+        console.log('get at ' + offset);
         https.get('https://api.twitch.tv/kraken/streams?limit=100&offset=' + offset, function(res) {
             var JSONResponse = '';
             res.setEncoding('utf8');
@@ -36,16 +38,13 @@ var changeChannel = function() {
             });
             res.on('end', function() {
                 var data = JSON.parse(JSONResponse);
-                data.streams.forEach(function(stream, index) {
-                    streams.push(stream.channel.name);
+                data.streams.forEach(function(stream) {
+                    channels.push(stream.channel.name);
                 });
 
-                //execute on full completion of stream collection
+                //when all calls return
                 if(++numResponses === maxPages) {
-                    var index = Math.floor(Math.random() * maxPages * 100);
-                    currentChannel = streams[index];
-                    io.emit('changeChannel', currentChannel);
-                    log('change #' + (index + channelOffset) + ': ' + currentChannel);
+                    channelList = channels;
 
                     //set the next channel offset
                     channelOffset = Math.floor(data._total * 0.8);
@@ -54,8 +53,22 @@ var changeChannel = function() {
         });
     }
 };
+
+//picks a channel out of the channelList and tells clients to change
+var changeChannel = function() {
+    var index = Math.floor(Math.random() * maxPages * 100);
+    currentChannel = channelList[index];
+    //TODO: make sure this channel is still online
+    io.emit('changeChannel', currentChannel);
+    log('change ' + currentChannel);
+};
+
 //pick a channel now
-changeChannel();
+getChannelList();
+setTimeout(function() {
+    changeChannel();
+    getChannelList();
+}, 5000);
 
 //make and start the timekeeper for the channel changer
 var keepTime = function() {
@@ -66,6 +79,7 @@ var keepTime = function() {
 
     if(remainingTime <= 0) {
         changeChannel();
+        getChannelList();
         elapsedTime = 0;
         remainingTime = channelDuration;
     }
