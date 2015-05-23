@@ -42,7 +42,7 @@ var changeChannel = function() {
                 //execute on full completion of stream collection
                 if(++numResponses === maxPages) {
                     currentChannel = streams[Math.floor(Math.random() * maxPages * 100)];
-                    log(currentChannel);
+                    log('change ' + currentChannel);
                     io.emit('changeChannel', currentChannel);
                 }
             });
@@ -74,6 +74,7 @@ setInterval(keepTime, 1000);
 io.on('connection', function(socket) {
     ++numConnected;
     socket.emit('changeChannel', currentChannel);
+    log('connect ' + socket.conn.remoteAddress);
 
     //keep track of voting
     var vote = 0;
@@ -99,6 +100,7 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         unvote();
         --numConnected;
+        log('disconnect ' + socket.conn.remoteAddress);
     });
 });
 
@@ -106,5 +108,5 @@ io.on('connection', function(socket) {
 app.use(compression());
 app.use(express.static(__dirname + '/public', { maxAge: cacheTimeout }));
 server.listen(80, function() {
-    log('server start');
+    log('start server');
 });
