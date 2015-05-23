@@ -5,6 +5,11 @@ var https = require('https');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+//logging utility
+var log = function(event) {
+    console.log(event + ' @ ' + (new Date().toString()));
+};
+
 var cacheTimeout = 24 * 60 * 60 * 1000; //ms
 var channelDuration = 4 * 60; //sec
 var maxPages = 10;
@@ -37,7 +42,7 @@ var changeChannel = function() {
                 //execute on full completion of stream collection
                 if(++numResponses === maxPages) {
                     currentChannel = streams[Math.floor(Math.random() * maxPages * 100)];
-                    console.log(currentChannel + ' @ ' + (new Date().toString()));
+                    log(currentChannel);
                     io.emit('changeChannel', currentChannel);
                 }
             });
@@ -101,5 +106,5 @@ io.on('connection', function(socket) {
 app.use(compression());
 app.use(express.static(__dirname + '/public', { maxAge: cacheTimeout }));
 server.listen(80, function() {
-    console.log('server start');
+    log('server start');
 });
