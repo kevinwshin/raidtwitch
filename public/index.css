@@ -22,9 +22,30 @@ body {
 h1 {
     margin: 0;
     padding: 0 5px;
+    display: inline-block;
 }
 #name {
     flex: 1;
+}
+.button {
+    align-self: center;
+    cursor: pointer;
+}
+.button > input {
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+}
+.button > label {
+    display: inline-block;
+    border: solid 1px gray;
+    border-radius: 5px;
+    width: 1em;
+    text-align: center;
+}
+.button > input:checked + label {
+    background: lightgreen;
+    border: solid 1px green;
 }
 #chat {
     width: 340px;
