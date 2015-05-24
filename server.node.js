@@ -1,3 +1,8 @@
+var dnscache = require('dnscache')({
+    'enable': true,
+    'ttl': 6 * 60 * 60,
+    'cachesize': 10
+});
 var express = require('express');
 var app = express();
 var compression = require('compression');
@@ -29,7 +34,6 @@ var getChannelList = function() {
     var channels = [];
     for(var page = 0; page < maxPages; ++page) {
         var offset = channelOffset + page * 100;
-        console.log('get at ' + offset);
         https.get('https://api.twitch.tv/kraken/streams?limit=100&offset=' + offset, function(res) {
             var JSONResponse = '';
             res.setEncoding('utf8');
