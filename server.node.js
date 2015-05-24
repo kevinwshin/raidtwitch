@@ -35,7 +35,9 @@ var httpsGet = function(url, callback) {
         res.on('data', function(chunk) {
             responseData += chunk;
         });
-        res.on('end', callback(responseData));
+        res.on('end', function() {
+            callback(responseData);
+        });
     });
 };
 

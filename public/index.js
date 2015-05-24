@@ -9,7 +9,7 @@ $(document).ready(function() {
     downButton.click(function() {
         if(this.checked) {
             socket.emit('downVote');
-            upButton.checked = false;
+            upButton[0].checked = false;
         } else {
             socket.emit('unvote');
         }
@@ -17,7 +17,7 @@ $(document).ready(function() {
     upButton.click(function() {
         if(this.checked) {
             socket.emit('upVote');
-            downButton.checked = false;
+            downButton[0].checked = false;
         } else {
             socket.emit('unvote');
         }
@@ -28,10 +28,10 @@ socket.on('changeChannel', function(name) {
     socket.emit('unvote');
     $('#stream').prop('src', 'http://www.twitch.tv/' + name + '/embed');
     $('#chat').prop('src', 'http://www.twitch.tv/' + name + '/chat?popout=');
-    $('#name').prop('href', 'http://www.twitch.tv/' + name);
-    $('#name > h1').text(name);
-    downButton = false;
-    upButton = false;
+    $('#name > a').prop('href', 'http://www.twitch.tv/' + name);
+    $('#name > a > h1').text(name);
+    downButton[0].checked = false;
+    upButton[0].checked = false;
 });
 
 socket.on('time', function(time) {

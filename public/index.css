@@ -19,13 +19,13 @@ body {
     display: flex;
     align-items: center;
 }
-h1 {
+#name {
+    flex: 1;
+}
+#name h1 {
     margin: 0;
     padding: 0 5px;
     display: inline-block;
-}
-#name {
-    flex: 1;
 }
 .button {
     align-self: center;
@@ -47,6 +47,11 @@ h1 {
     background: lightgreen;
     border: solid 1px green;
 }
+#time {
+    margin: 0;
+    padding: 0 5px;
+    width: 2.5em;
+    text-align: center;
 #chat {
     width: 340px;
 }
