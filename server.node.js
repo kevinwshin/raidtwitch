@@ -18,6 +18,7 @@ var log = function(event) {
 var cacheTimeout = 24 * 60 * 60 * 1000; //ms
 var channelDuration = 4 * 60; //sec
 var maxPages = 7;
+var offsetMultiplier = 0.5;
 
 var channelOffset;
 var currentChannel;
@@ -59,7 +60,7 @@ var getChannelList = function(callback) {
                 channelList = channels;
 
                 //set the next channel offset
-                channelOffset = Math.floor(data._total * 0.8);
+                channelOffset = Math.floor(data._total * offsetMultiplier);
                 //pick a channel if initializing
                 if(callback) {
                     callback();

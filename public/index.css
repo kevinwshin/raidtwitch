@@ -29,7 +29,6 @@ body {
 }
 .button {
     align-self: center;
-    cursor: pointer;
 }
 .button > input {
     position: absolute;
@@ -42,6 +41,7 @@ body {
     border-radius: 5px;
     width: 1em;
     text-align: center;
+    cursor: pointer;
 }
 .button > input:checked + label {
     background: lightgreen;
