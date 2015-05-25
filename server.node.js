@@ -22,6 +22,7 @@ var offsetMultiplier = 0.5;
 
 var channelOffset;
 var currentChannel;
+var currentGame;
 var channelList;
 var elapsedTime = 0;
 var numConnected = 0;
@@ -81,7 +82,9 @@ var changeChannel = function() {
         if(data.stream !== null) {
             //send it to the clients
             currentChannel = candidate;
+            currentGame = data.stream.game;
             io.emit('changeChannel', currentChannel);
+            io.emit('changeGame', currentGame);
             log('change ' + currentChannel);
         } else {
             changeChannel();
@@ -122,6 +125,7 @@ setInterval(keepTime, 1000);
 io.on('connection', function(socket) {
     ++numConnected;
     socket.emit('changeChannel', currentChannel);
+    socket.emit('changeGame', currentGame);
     log('connect ' + socket.conn.remoteAddress);
 
     //keep track of voting
