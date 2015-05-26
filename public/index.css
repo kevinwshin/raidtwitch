@@ -16,6 +16,7 @@ body {
 }
 #info {
     margin: 0 5px;
+    order: 2;
     display: flex;
     align-items: center;
 }
