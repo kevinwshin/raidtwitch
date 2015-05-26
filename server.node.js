@@ -122,37 +122,40 @@ setInterval(keepTime, 1000);
 
 //tell new connectees what channel we're on
 //also tally them
+//but wait until they report that they've connected
 io.on('connection', function(socket) {
-    ++numConnected;
-    socket.emit('changeChannel', currentChannel);
-    socket.emit('changeGame', currentGame);
-    log('connect ' + socket.conn.remoteAddress);
+    socket.on('ready', function() {
+        ++numConnected;
+        socket.emit('changeChannel', currentChannel);
+        socket.emit('changeGame', currentGame);
+        log('connect ' + socket.conn.remoteAddress);
 
-    //keep track of voting
-    var vote = 0;
-    var unvote = function() {
-        if(vote === 1) {
-            --upVotes;
-        } else if(vote === -1) {
-            --downVotes;
-        }
-        vote = 0;
-    };
-    socket.on('unvote', unvote);
-    socket.on('upVote', function() {
-        unvote();
-        vote = 1;
-        ++upVotes;
-    });
-    socket.on('downVote', function() {
-        unvote();
-        vote = -1;
-        ++downVotes;
-    });
-    socket.on('disconnect', function() {
-        unvote();
-        --numConnected;
-        log('disconnect ' + socket.conn.remoteAddress);
+        //keep track of voting
+        var vote = 0;
+        var unvote = function() {
+            if(vote === 1) {
+                --upVotes;
+            } else if(vote === -1) {
+                --downVotes;
+            }
+            vote = 0;
+        };
+        socket.on('unvote', unvote);
+        socket.on('upVote', function() {
+            unvote();
+            vote = 1;
+            ++upVotes;
+        });
+        socket.on('downVote', function() {
+            unvote();
+            vote = -1;
+            ++downVotes;
+        });
+        socket.on('disconnect', function() {
+            unvote();
+            --numConnected;
+            log('disconnect ' + socket.conn.remoteAddress);
+        });
     });
 });
 

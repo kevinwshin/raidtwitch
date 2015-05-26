@@ -45,4 +45,7 @@ $(function() {
         var timeString = minutes + (seconds < 10 ? ':0' : ':') + seconds;
         $('#time').text(timeString);
     });
+
+    //connect for real
+    socket.emit('ready');
 });
