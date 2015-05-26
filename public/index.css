@@ -46,11 +46,11 @@ h1 {
     text-align: center;
     cursor: pointer;
 }
-input#downVote:checked + label {
+#downVote:checked + label {
     background: pink;
     border: solid 1px red;
 }
-input#upVote:checked + label {
+#upVote:checked + label {
     background: lightgreen;
     border: solid 1px green;
 }
@@ -59,6 +59,7 @@ input#upVote:checked + label {
     padding: 0 5px;
     width: 2.5em;
     text-align: center;
+}
 #chat {
     width: 340px;
 }
