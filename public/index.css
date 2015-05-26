@@ -28,6 +28,8 @@ h1 {
 #game {
     flex: 1;
     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .button {
     align-self: center;
