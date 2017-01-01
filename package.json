@@ -1,0 +1,29 @@
+{
+  "name": "raidtwitch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.node.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinwshin/raidtwitch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kevinwshin/raidtwitch/issues"
+  },
+  "homepage": "https://github.com/kevinwshin/raidtwitch#readme",
+  "engines": {
+    "node": "6.9.2"
+  },
+  "dependencies": {
+    "compression": "1.6.2",
+    "dnscache": "1.0.0",
+    "express": "4.14.0",
+    "socket.io": "1.7.2"
+  }
+}
