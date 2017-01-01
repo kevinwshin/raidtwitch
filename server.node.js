@@ -10,6 +10,9 @@ var https = require('https');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var apiEndpoint = 'https://api.twitch.tv/kraken/streams';
+var clientID = '?client_id=267ktc5h2ly4zaq07ckqsqnt2lr5tz';
+
 //logging utility
 var log = function(event) {
     console.log(event + ' @ ' + (new Date().toString()));
@@ -17,7 +20,7 @@ var log = function(event) {
 
 var cacheTimeout = 24 * 60 * 60 * 1000; //ms
 var channelDuration = 4 * 60; //sec
-var maxPages = 7;
+var maxPages = 3;
 var offsetMultiplier = 0.5;
 
 var channelOffset;
@@ -50,7 +53,7 @@ var getChannelList = function(callback) {
     var channels = [];
     for(var page = 0; page < maxPages; ++page) {
         var offset = channelOffset + page * 100;
-        httpsGet('https://api.twitch.tv/kraken/streams?limit=100&offset=' + offset, function(data) {
+        httpsGet(apiEndpoint + clientID + '&language=en&limit=100&offset=' + offset, function(data) {
             data = JSON.parse(data);
             data.streams.forEach(function(stream) {
                 channels.push(stream.channel.name);
@@ -73,18 +76,20 @@ var getChannelList = function(callback) {
 
 //picks a channel out of the channelList and tells clients to change
 var changeChannel = function() {
-    var index = Math.floor(Math.random() * maxPages * 100);
+    var index = Math.floor(Math.random() * channelList.length);
     var candidate = channelList[index];
 
     //make sure this channel is still online
-    httpsGet('https://api.twitch.tv/kraken/streams/' + candidate, function(data) {
+    httpsGet(apiEndpoint + '/' + candidate + clientID, function(data) {
         data = JSON.parse(data);
         if(data.stream !== null) {
             //send it to the clients
             currentChannel = candidate;
             currentGame = data.stream.game;
-            io.emit('changeChannel', currentChannel);
-            io.emit('changeGame', currentGame);
+            io.emit('changeChannel', {
+                name: currentChannel,
+                game: currentGame,
+            });
             log('change ' + currentChannel);
         } else {
             changeChannel();
@@ -93,9 +98,9 @@ var changeChannel = function() {
 };
 
 //pick a channelOffset and channel now
-httpsGet('https://api.twitch.tv/kraken/streams?limit=1', function(data) {
+httpsGet(apiEndpoint + clientID + '&language=en&limit=1', function(data) {
     data = JSON.parse(data);
-    channelOffset = Math.floor(data._total * 0.8);
+    channelOffset = Math.floor(data._total * offsetMultiplier);
     getChannelList(function() {
         changeChannel();
         getChannelList()
@@ -105,8 +110,13 @@ httpsGet('https://api.twitch.tv/kraken/streams?limit=1', function(data) {
 //make and start the timekeeper for the channel changer
 var keepTime = function() {
     //go around the divide by zero
-    var currentTotalTime = numConnected === 0 ? channelDuration : channelDuration * 3 /
-            (3 - (upVotes * 2 + downVotes * 3) * (upVotes - downVotes) / numConnected / numConnected);
+    if(numConnected === 0) {
+        var currentTotalTime = channelDuration;
+    } else {
+        //get a vote adjusted to the range [-1, 1]
+        var adjustedVote = (upVotes - downVotes) / numConnected;
+        var currentTotalTime = channelDuration * (5 * adjustedVote * adjustedVote + 11 * adjustedVote + 8) / 8;
+    }
     var remainingTime = currentTotalTime - elapsedTime++;
 
     if(remainingTime <= 0) {
@@ -126,8 +136,10 @@ setInterval(keepTime, 1000);
 io.on('connection', function(socket) {
     socket.on('ready', function() {
         ++numConnected;
-        socket.emit('changeChannel', currentChannel);
-        socket.emit('changeGame', currentGame);
+        socket.emit('changeChannel', {
+            name: currentChannel,
+            game: currentGame,
+        });
         log('connect ' + socket.conn.remoteAddress);
 
         //keep track of voting

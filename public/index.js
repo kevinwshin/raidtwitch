@@ -25,18 +25,19 @@ $(function() {
         }
     });
 
-    socket.on('changeChannel', function(name) {
+    socket.on('changeChannel', function(channelInfo) {
+        userName = channelInfo.name;
+        gameName = channelInfo.game;
+        stream = channelInfo;
+
         socket.emit('unvote');
-        $('#stream').prop('src', 'http://www.twitch.tv/' + name + '/embed');
-        $('#chat').prop('src', 'http://www.twitch.tv/' + name + '/chat?popout=');
-        $('#name').prop('href', 'http://www.twitch.tv/' + name);
-        $('#name > h1').text(name);
+        $('#stream').prop('src', 'http://player.twitch.tv/?channel=' + userName);
+        $('#chat').prop('src', 'http://www.twitch.tv/' + userName + '/chat');
+        $('#name').prop('href', 'http://www.twitch.tv/' + userName);
+        $('#name').text(userName);
+        $('#game').text(gameName);
         downButton[0].checked = false;
         upButton[0].checked = false;
-    });
-
-    socket.on('changeGame', function(game) {
-        $('#game').text(game);
     });
 
     socket.on('time', function(time) {
